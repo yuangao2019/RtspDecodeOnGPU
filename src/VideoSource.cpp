@@ -10,6 +10,9 @@
  */
 #include "VideoSource.h"
 #include "VideoDecoder.h"
+//#include "dynlink_nvcuvid.cpp"
+//#include "dynlink_cuda.cpp"
+
 #include <assert.h>
 #include <iostream>
 
@@ -217,8 +220,8 @@ bool VideoSource::run()
 {
 	void* hHandleDriver = nullptr;
 	//Initialize the CUDA driver
-	__cu(cuInit(0, __CUDA_API_VERSION, hHandleDriver));
-	__cu(cuvidInit(0));
+	__cu(cuInit(0/*, __CUDA_API_VERSION, hHandleDriver*/));
+//	__cu(cuvidInit(0));
 
 	//cuda上下文
     CUcontext cudaCtx;

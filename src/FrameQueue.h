@@ -11,7 +11,8 @@
  *
  */
 
-#include "dynlink_nvcuvid.h" // <nvcuvid.h>
+//#include "dynlink_nvcuvid.h" // <nvcuvid.h>
+#include <nvcuvid.h>
 
 #ifdef _WIN32
   #include <windows.h>

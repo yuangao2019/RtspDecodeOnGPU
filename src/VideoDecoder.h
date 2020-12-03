@@ -1,8 +1,10 @@
 #ifndef _VIDEO_DECODER
 #define _VIDEO_DECODER
 
-#include "dynlink_nvcuvid.h" // <nvcuvid.h>
-#include "dynlink_cuda.h"    // <cuda.h>
+//#include "dynlink_nvcuvid.h" // <nvcuvid.h>
+//#include "dynlink_cuda.h"    // <cuda.h>
+#include <nvcuvid.h>
+#include <cuda.h>
 #include "FrameQueue.h"
 
 class CudaDecoder
