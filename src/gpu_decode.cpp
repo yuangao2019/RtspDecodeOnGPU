@@ -14,7 +14,8 @@ int main(int argc, const char* argv[])
 {
 
     const char *rtsp;
-    rtsp = "http://hls01open.ys7.com/openlive/39cce778dd3c4a7aa2cf96c9df9040f3.m3u8";
+    rtsp = argv[1];
+    //rtsp = "http://hls01open.ys7.com/openlive/39cce778dd3c4a7aa2cf96c9df9040f3.m3u8";
     bool ret;
 
     VideoSource *videoDecoder = new VideoSource();

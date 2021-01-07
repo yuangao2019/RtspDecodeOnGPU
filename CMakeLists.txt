@@ -37,7 +37,13 @@ set(AVCODEC_LIB ${AVCODEC_LIBRARY})
 set(AVFORMAT_LIB ${AVFORMAT_LIBRARY})
 set(AVUTIL_LIB ${AVUTIL_LIBRARY})
 
-find_package(OpenCV REQUIRED)
+
+#find_package(OpenCV REQUIRED)
+set(OPENCV_PATH /media/gaoyuan/Work1/Projects/OpenSource/Thirdparty/opencv/opencv-3.4.9/install)
+include_directories(${OPENCV_PATH}/include)
+file(GLOB_RECURSE OPENCV_LIBS "${OPENCV_PATH}/lib/*.so")
+link_libraries(${OPENCV_LIBS})
+
 find_package(CUDA REQUIRED)
 set(CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER})
 SET(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
@@ -49,12 +55,13 @@ LINK_DIRECTORIES(/usr/lib
                  /usr/local/lib
                  /usr/local/cuda/lib64)
 message("CUDA_LIBRARY: " ${CUDA_CUDA_LIBRARY})
+
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 file(GLOB_RECURSE HEADERS "src/*.h")
 
-cuda_add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+cuda_add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} src/CudaFunction.cu)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} ${CUDA_CUDA_LIBRARY} ${CMAKE_DL_LIBS} ${NVENCODEAPI_LIB} ${CUVID_LIB} ${AVCODEC_LIB} ${AVFORMAT_LIB} ${AVUTIL_LIB})
+target_link_libraries(${PROJECT_NAME} ${OPENCV_LIBS} ${CUDA_CUDA_LIBRARY} ${CMAKE_DL_LIBS} ${NVENCODEAPI_LIB} ${CUVID_LIB} ${AVCODEC_LIB} ${AVFORMAT_LIB} ${AVUTIL_LIB})

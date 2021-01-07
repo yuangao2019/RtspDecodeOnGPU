@@ -16,10 +16,11 @@
 #include <assert.h>
 #include <iostream>
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgcodecs.hpp"
+//#include "opencv2/core/core.hpp"
+//#include "opencv2/imgproc/imgproc.hpp"
+//#include "opencv2/highgui/highgui.hpp"
+//#include "opencv2/imgcodecs.hpp"
+#include <opencv2/opencv.hpp>
 
 //一个大的结构体,包含ffmpeg各种参数
 AVCodecContext	*pCodecCtx;
@@ -215,7 +216,8 @@ pFormatCtx
 
 
 int iPkt = 0;
-
+extern uint32_t real_width;
+extern uint32_t real_height;
 bool VideoSource::run()
 {
 	void* hHandleDriver = nullptr;
@@ -257,6 +259,7 @@ bool VideoSource::run()
 	CUVIDSOURCEDATAPACKET cupkt;
 	int iPkt = 0;
 	CUresult oResult;
+
 	//取rtsp流放到avpkt
 	while (av_read_frame(pFormatCtx, avpkt) >= 0){
 		if (avpkt->stream_index == videoindex){
@@ -316,25 +319,33 @@ bool VideoSource::run()
 					unsigned int nv12_size = nDecodedPitch * (pDecoder->tHeight + pDecoder->tHeight/2);
 					
 					//将显存转换到内存
-					oResult = cuMemAllocHost((void **)&pFrameBufferYUV[0], nv12_size);
-					oResult = cuMemcpyDtoH(pFrameBufferYUV[0], pDecodedFrame, nv12_size);  
+//					oResult = cuMemAllocHost((void **)&pFrameBufferYUV[0], nv12_size);
+//					oResult = cuMemcpyDtoH(pFrameBufferYUV[0], pDecodedFrame, nv12_size);
 
-					cv::Mat img = cv::Mat::zeros(pDecoder->tHeight, pDecoder->tWidth, CV_8UC3);
+					cv::cuda::GpuMat img_gpu_yuv(real_height, real_width, CV_8UC3);
+//					cv::cuda::GpuMat img_gpu_bgr(pDecoder->tHeight, pDecoder->tWidth, CV_8UC3);
+//					cv::cuda::cvtColor(img_gpu_yuv, img_gpu_bgr, CV_YUV2BGRA_I420);
+					cv::Mat img = cv::Mat::zeros(real_height, real_width, CV_8UC3);
+//					cv::Mat cpu_img = cv::Mat::zeros(pDecoder->tHeight, pDecoder->tWidth, CV_8UC3);
 					//yuv420格式的buffer转为BGR
-					pDecoder->YUV420P2BGR32(pFrameBufferYUV[0], (unsigned char *)img.data, nDecodedPitch, pDecoder->tHeight, pDecoder->tWidth);
-					//cv::imwrite("./1.jpg", img);
-					cv::imshow("test", img);
-            		if(cv::waitKey(1) == 27){
-                		cv::destroyAllWindows();
-                		break;
-            		}
+//					pDecoder->YUV420P2BGR32(pFrameBufferYUV[0], (unsigned char *)cpu_img.data, nDecodedPitch, pDecoder->tHeight, pDecoder->tWidth);
+//					cv::imwrite("./1.jpg", cpu_img);
+					pDecoder->yuv420p2bgr(pDecodedFrame, img_gpu_yuv, nDecodedPitch, real_width, real_height);
+					img_gpu_yuv.download(img);
+					cv::imwrite("./2.jpg", img);
+//					writer << img;
+//					cv::imshow("test", img);
+//            		if(cv::waitKey(1) == 27){
+//                		cv::destroyAllWindows();
+//                		break;
+//            		}
 
 					//取消映射
 					cuvidUnmapVideoFrame(pDecoder->GetDecoder(), pDecodedFrame);
 					//释放队列frame
 					pDecoder->m_pFrameQueue->releaseFrame(&pData);
 					//释放Mat
-					img.release();
+//					img.release();
 				}else{
 					cuvidUnmapVideoFrame(pDecoder->GetDecoder(), pDecodedFrame);
 					pDecoder->m_pFrameQueue->releaseFrame(&pData);

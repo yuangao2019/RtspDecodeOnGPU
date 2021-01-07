@@ -5,6 +5,8 @@
 //#include "dynlink_cuda.h"    // <cuda.h>
 #include <nvcuvid.h>
 #include <cuda.h>
+#include <opencv2/opencv.hpp>
+
 #include "FrameQueue.h"
 
 class CudaDecoder
@@ -23,6 +25,7 @@ public:
     //add
     bool mapFrame(int iPictureIndex, CUdeviceptr *ppDevice, unsigned int *nPitch, CUVIDPROCPARAMS *pVideoProcessingParameters);
     void YUV420P2BGR32(unsigned char *yuv_buffer_in, unsigned char *rgb_buffer_out, unsigned int pitch, int width, int height);
+    void yuv420p2bgr(CUdeviceptr yuv_buffer_in, cv::cuda::GpuMat& rgb_buffer_out, unsigned int pitch, int width, int height);
     int tWidth;
     int tHeight;
     
